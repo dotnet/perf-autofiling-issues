@@ -1,43 +1,38 @@
 #!/bin/bash
 # Workaround script for NativeAOT scenarios _BUILDCONFIG duplicate key error
-# This script cleans up duplicate environment variables that may cause MSBuild errors
+# This script applies the MSBuild workaround to prevent environment variable sync issues
 
-echo "Checking for duplicate environment variables..."
+echo "Applying NativeAOT environment workaround..."
 
-# Function to check for case-insensitive duplicates
-check_duplicates() {
-    local varname="$1"
-    local count=$(printenv | grep -i "^${varname}=" | wc -l)
-    if [ "$count" -gt 1 ]; then
-        echo "WARNING: Found $count instances of ${varname} (case-insensitive)"
-        printenv | grep -i "^${varname}="
-        return 1
-    fi
-    return 0
-}
+# The duplicate environment variable issue occurs when the Azure DevOps agent or
+# build environment has variables set at multiple levels (system, agent, pipeline).
+# Since bash doesn't allow us to detect these cross-process duplicates, we apply
+# the workaround preventively when known problematic variables exist.
 
-# Check common build configuration variables
-has_duplicates=0
-for var in "_BUILDCONFIG" "BUILDCONFIG" "BuildConfig"; do
-    if ! check_duplicates "$var"; then
-        has_duplicates=1
-    fi
-done
-
-if [ "$has_duplicates" -eq 1 ]; then
-    echo ""
-    echo "Found duplicate environment variables. Applying workaround..."
-    echo "Setting MSBuildTaskHostDoNotUpdateEnvironment=1 to disable environment synchronization"
-    export MSBuildTaskHostDoNotUpdateEnvironment=1
-else
-    echo "No duplicate environment variables detected."
+# Check if _BUILDCONFIG or similar variables are set
+has_buildconfig_vars=0
+if [ -n "$_BUILDCONFIG" ] || [ -n "$BUILDCONFIG" ] || [ -n "$BuildConfig" ]; then
+    has_buildconfig_vars=1
+    echo "Build configuration variables detected in environment:"
+    [ -n "$_BUILDCONFIG" ] && echo "  _BUILDCONFIG=$_BUILDCONFIG"
+    [ -n "$BUILDCONFIG" ] && echo "  BUILDCONFIG=$BUILDCONFIG"
+    [ -n "$BuildConfig" ] && echo "  BuildConfig=$BuildConfig"
 fi
 
-# Optional: Clean up specific known problematic variables
-# Uncomment if you want to forcefully remove _BUILDCONFIG
-# unset _BUILDCONFIG
-# unset BUILDCONFIG
-# unset BuildConfig
+# In Azure DevOps environments, apply the workaround preventively
+# since we can't detect duplicate variables set at different levels
+if [ -n "$TF_BUILD" ] || [ -n "$AGENT_ID" ]; then
+    echo "Azure DevOps environment detected."
+    echo "Applying MSBuildTaskHostDoNotUpdateEnvironment=1 workaround to prevent duplicate key errors."
+    export MSBuildTaskHostDoNotUpdateEnvironment=1
+elif [ "$has_buildconfig_vars" -eq 1 ]; then
+    echo "Build configuration variables present."
+    echo "Applying MSBuildTaskHostDoNotUpdateEnvironment=1 workaround as a precaution."
+    export MSBuildTaskHostDoNotUpdateEnvironment=1
+else
+    echo "No Azure DevOps environment or build configuration variables detected."
+    echo "Skipping workaround."
+fi
 
 echo ""
-echo "Environment check complete. Proceeding with build..."
+echo "Environment setup complete. Proceeding with build..."
