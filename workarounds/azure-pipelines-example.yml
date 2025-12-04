@@ -1,0 +1,46 @@
+# Example Azure DevOps Pipeline Configuration
+# This shows how to apply the NativeAOT environment workaround
+
+# Option 1: Set environment variable at pipeline level
+variables:
+  MSBuildTaskHostDoNotUpdateEnvironment: '1'
+
+jobs:
+- job: NativeAOT_Build
+  pool:
+    vmImage: 'ubuntu-latest'
+  
+  steps:
+  # Option 2: Use the workaround script
+  - bash: |
+      # If you've included the workaround script in your repo
+      source workarounds/nativeaot-environment-fix.sh
+    displayName: 'Apply NativeAOT environment workaround'
+    condition: eq(variables['Build.Reason'], 'PullRequest')
+  
+  # Option 3: Set environment variable inline before the build
+  - bash: |
+      export MSBuildTaskHostDoNotUpdateEnvironment=1
+      # Your build command here
+      dotnet publish -c Release -r linux-x64 /p:PublishAot=true
+    displayName: 'Build with NativeAOT'
+  
+  # Option 4: Check for duplicate environment variables first
+  - bash: |
+      echo "Checking for duplicate environment variables..."
+      printenv | grep -i "buildconfig" || echo "No buildconfig variables found"
+      
+      # Count duplicates
+      duplicate_count=$(printenv | grep -i "^_BUILDCONFIG=" | wc -l)
+      if [ "$duplicate_count" -gt 1 ]; then
+        echo "##vso[task.logissue type=warning]Found $duplicate_count instances of _BUILDCONFIG"
+        echo "##[section]Applying workaround..."
+        export MSBuildTaskHostDoNotUpdateEnvironment=1
+      fi
+      
+      # Your build command
+      dotnet build YourProject.csproj
+    displayName: 'Smart environment check and build'
+
+# Note: Choose ONE of the options above that best fits your pipeline structure
+# Option 1 (pipeline-level variable) is the simplest and most reliable
