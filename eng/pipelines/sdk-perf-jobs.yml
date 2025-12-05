@@ -1,0 +1,183 @@
+# This is a demonstration file showing the changes needed to add debug configured runs
+# In the actual dotnet/performance repository, these changes would be applied to the existing file
+
+parameters:
+  - name: runPublicJobs
+    type: boolean
+    default: false
+  - name: runPrivateJobs
+    type: boolean
+    default: false
+  - name: runScheduledPrivateJobs
+    type: boolean
+    default: false
+  - name: jobParameters
+    type: object
+    default: {}
+
+jobs:
+
+###########################################
+# Private Jobs (showing relevant sections)
+###########################################
+
+- ${{ if parameters.runPrivateJobs }}:
+
+  # Maui Android scenario benchmarks (Mono ProfiledAOT) - RELEASE
+  - template: /eng/pipelines/templates/build-machine-matrix.yml
+    parameters:
+      jobTemplate: /eng/pipelines/templates/run-scenarios-job.yml
+      buildMachines:
+        - win-x64-android-arm64-pixel
+        - win-x64-android-arm64-galaxy
+      isPublic: false
+      jobParameters:
+        runKind: maui_scenarios_android
+        projectFileName: maui_scenarios_android.proj
+        channels:
+          - main
+        runtimeFlavor: mono
+        codeGenType: ProfiledAOT
+        additionalJobIdentifier: Mono
+        buildConfig: Release  # Explicit Release configuration
+        ${{ each parameter in parameters.jobParameters }}:
+          ${{ parameter.key }}: ${{ parameter.value }}
+
+  # Maui Android scenario benchmarks (Mono ProfiledAOT) - DEBUG (NEW)
+  - template: /eng/pipelines/templates/build-machine-matrix.yml
+    parameters:
+      jobTemplate: /eng/pipelines/templates/run-scenarios-job.yml
+      buildMachines:
+        - win-x64-android-arm64-pixel
+        - win-x64-android-arm64-galaxy
+      isPublic: false
+      jobParameters:
+        runKind: maui_scenarios_android
+        projectFileName: maui_scenarios_android.proj
+        channels:
+          - main
+        runtimeFlavor: mono
+        codeGenType: ProfiledAOT
+        additionalJobIdentifier: Mono_Debug
+        buildConfig: Debug  # Debug configuration
+        ${{ each parameter in parameters.jobParameters }}:
+          ${{ parameter.key }}: ${{ parameter.value }}
+
+  # Maui Android scenario benchmarks (CoreCLR JIT) - RELEASE
+  - template: /eng/pipelines/templates/build-machine-matrix.yml
+    parameters:
+      jobTemplate: /eng/pipelines/templates/run-scenarios-job.yml
+      buildMachines:
+        - win-x64-android-arm64-pixel
+        - win-x64-android-arm64-galaxy
+      isPublic: false
+      jobParameters:
+        runKind: maui_scenarios_android
+        projectFileName: maui_scenarios_android.proj
+        channels:
+          - main
+        runtimeFlavor: coreclr
+        codeGenType: JIT
+        additionalJobIdentifier: CoreCLR
+        buildConfig: Release  # Explicit Release configuration
+        ${{ each parameter in parameters.jobParameters }}:
+          ${{ parameter.key }}: ${{ parameter.value }}
+
+  # Maui Android scenario benchmarks (CoreCLR JIT) - DEBUG (NEW)
+  - template: /eng/pipelines/templates/build-machine-matrix.yml
+    parameters:
+      jobTemplate: /eng/pipelines/templates/run-scenarios-job.yml
+      buildMachines:
+        - win-x64-android-arm64-pixel
+        - win-x64-android-arm64-galaxy
+      isPublic: false
+      jobParameters:
+        runKind: maui_scenarios_android
+        projectFileName: maui_scenarios_android.proj
+        channels:
+          - main
+        runtimeFlavor: coreclr
+        codeGenType: JIT
+        additionalJobIdentifier: CoreCLR_Debug
+        buildConfig: Debug  # Debug configuration
+        ${{ each parameter in parameters.jobParameters }}:
+          ${{ parameter.key }}: ${{ parameter.value }}
+
+  # Maui iOS Mono scenario benchmarks - RELEASE
+  - template: /eng/pipelines/templates/build-machine-matrix.yml
+    parameters:
+      jobTemplate: /eng/pipelines/templates/run-scenarios-job.yml
+      buildMachines:
+        - osx-x64-ios-arm64
+      isPublic: false
+      jobParameters:
+        runKind: maui_scenarios_ios
+        projectFileName: maui_scenarios_ios.proj
+        channels:
+          - main
+        runtimeFlavor: mono
+        codeGenType: FullAOT
+        additionalJobIdentifier: Mono
+        buildConfig: Release  # Explicit Release configuration
+        ${{ each parameter in parameters.jobParameters }}:
+          ${{ parameter.key }}: ${{ parameter.value }}
+
+  # Maui iOS Mono scenario benchmarks - DEBUG (NEW)
+  - template: /eng/pipelines/templates/build-machine-matrix.yml
+    parameters:
+      jobTemplate: /eng/pipelines/templates/run-scenarios-job.yml
+      buildMachines:
+        - osx-x64-ios-arm64
+      isPublic: false
+      jobParameters:
+        runKind: maui_scenarios_ios
+        projectFileName: maui_scenarios_ios.proj
+        channels:
+          - main
+        runtimeFlavor: mono
+        codeGenType: FullAOT
+        additionalJobIdentifier: Mono_Debug
+        buildConfig: Debug  # Debug configuration
+        ${{ each parameter in parameters.jobParameters }}:
+          ${{ parameter.key }}: ${{ parameter.value }}
+
+  # Maui iOS Native AOT scenario benchmarks - RELEASE
+  - template: /eng/pipelines/templates/build-machine-matrix.yml
+    parameters:
+      jobTemplate: /eng/pipelines/templates/run-scenarios-job.yml
+      buildMachines:
+        - osx-x64-ios-arm64
+      isPublic: false
+      jobParameters:
+        runKind: maui_scenarios_ios
+        projectFileName: maui_scenarios_ios.proj
+        channels:
+          - main
+        runtimeFlavor: coreclr
+        codeGenType: NativeAOT
+        additionalJobIdentifier: CoreCLR
+        buildConfig: Release  # Explicit Release configuration
+        ${{ each parameter in parameters.jobParameters }}:
+          ${{ parameter.key }}: ${{ parameter.value }}
+
+  # Maui iOS Native AOT scenario benchmarks - DEBUG (NEW)
+  - template: /eng/pipelines/templates/build-machine-matrix.yml
+    parameters:
+      jobTemplate: /eng/pipelines/templates/run-scenarios-job.yml
+      buildMachines:
+        - osx-x64-ios-arm64
+      isPublic: false
+      jobParameters:
+        runKind: maui_scenarios_ios
+        projectFileName: maui_scenarios_ios.proj
+        channels:
+          - main
+        runtimeFlavor: coreclr
+        codeGenType: NativeAOT
+        additionalJobIdentifier: CoreCLR_Debug
+        buildConfig: Debug  # Debug configuration
+        ${{ each parameter in parameters.jobParameters }}:
+          ${{ parameter.key }}: ${{ parameter.value }}
+
+# NOTE: Similar changes would be applied to all other Android and iOS job variants
+# (AOT, R2R, R2RComposite, etc.) in the actual implementation
