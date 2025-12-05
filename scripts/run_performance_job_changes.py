@@ -1,6 +1,15 @@
 """
-This file demonstrates the changes needed to run_performance_job.py
-In the actual implementation, these changes would be integrated into the existing file.
+DEMONSTRATION FILE FOR dotnet/perf-autofiling-issues REPOSITORY
+================================================================
+
+This file demonstrates the changes needed to run_performance_job.py in the
+dotnet/performance repository.
+
+⚠️ IMPORTANT: This is NOT a standalone script. Apply these changes to the existing
+   run_performance_job.py file in the dotnet/performance repository.
+
+The changes shown here follow the existing parameter naming conventions in the
+actual run_performance_job.py file (using snake_case: build_config).
 """
 
 # CHANGE 1: Update the RunPerformanceJobArgs dataclass to include build_config with default "Release"

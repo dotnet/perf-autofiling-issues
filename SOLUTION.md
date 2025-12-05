@@ -227,6 +227,17 @@ In the actual dotnet/performance repository, the following files need to be modi
 - The solution follows the existing pattern used for other configuration properties (RuntimeFlavor, CodegenType, etc.)
 - All mobile scenario variants (AOT, R2R, JIT, NativeAOT, etc.) should have Debug counterparts added
 
+### Breaking Change Note
+
+**Android RunConfigsString Format:**
+The RunConfigsString format changes from `RuntimeFlavor_CodegenType` to `RuntimeFlavor_CodegenType_BuildConfig`.
+
+**Impact:** Binlog file names will include the build configuration:
+- Old format: `mono_ProfiledAOT.binlog`
+- New format: `mono_ProfiledAOT_Release.binlog` or `mono_ProfiledAOT_Debug.binlog`
+
+**Mitigation:** This only affects binlog file naming and does not break functionality. Any scripts or tools that parse binlog file names should be updated to handle the new format. The change is applied to all builds uniformly, so there's no inconsistency between old and new runs.
+
 ## Future Enhancements
 
 1. Could extend to other scenario types if needed

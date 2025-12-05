@@ -1,5 +1,15 @@
-# This is a demonstration file showing the changes needed to add debug configured runs
-# In the actual dotnet/performance repository, these changes would be applied to the existing file
+# DEMONSTRATION FILE FOR dotnet/perf-autofiling-issues REPOSITORY
+# ================================================================
+# 
+# This file demonstrates the changes needed to sdk-perf-jobs.yml in the
+# dotnet/performance repository.
+#
+# ⚠️ IMPORTANT: This is NOT a complete pipeline file. Apply these changes to the
+#    existing sdk-perf-jobs.yml file in the dotnet/performance repository.
+#
+# The pattern shown here should be applied to ALL mobile scenario jobs:
+# - Add explicit buildConfig: Release to existing jobs
+# - Duplicate jobs with buildConfig: Debug and updated additionalJobIdentifier
 
 parameters:
   - name: runPublicJobs

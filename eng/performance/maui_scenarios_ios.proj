@@ -14,8 +14,12 @@
     <NativeAOTCommandProps Condition="'$(RuntimeFlavor)' == 'coreclr'">--nativeaot true</NativeAOTCommandProps>
     
     <!-- CHANGE: Default to Release if BuildConfig is not set -->
+    <!-- Two equivalent ways to define this property: -->
+    <!-- Option 1 (explicit conditions): -->
     <_BuildConfig Condition="'$(BuildConfig)' == ''">Release</_BuildConfig>
     <_BuildConfig Condition="'$(BuildConfig)' != ''">$(BuildConfig)</_BuildConfig>
+    <!-- Option 2 (using MSBuild ValueOrDefault, more concise): -->
+    <!-- <_BuildConfig>$([MSBuild]::ValueOrDefault('$(BuildConfig)', 'Release'))</_BuildConfig> -->
   </PropertyGroup>
 
   <Target Name="RemoveDotnetFromCorrelationStaging" BeforeTargets="BeforeTest">

@@ -29,6 +29,11 @@
     <!-- CHANGE: Default to Release if BuildConfig is not set, and add it to RunConfigsString -->
     <_BuildConfig Condition="'$(BuildConfig)' == ''">Release</_BuildConfig>
     <_BuildConfig Condition="'$(BuildConfig)' != ''">$(BuildConfig)</_BuildConfig>
+    
+    <!-- NOTE: RunConfigsString format changed from 'RuntimeFlavor_CodegenType' to 
+         'RuntimeFlavor_CodegenType_BuildConfig'. This affects binlog naming.
+         Old: mono_ProfiledAOT.binlog
+         New: mono_ProfiledAOT_Release.binlog or mono_ProfiledAOT_Debug.binlog -->
     <RunConfigsString>$(RuntimeFlavor)_$(CodegenType)_$(_BuildConfig)</RunConfigsString>
   </PropertyGroup>
 
